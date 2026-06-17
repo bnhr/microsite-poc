@@ -7,6 +7,8 @@ export type NativeShareTarget =
 export type ShareChannel =
   | "native-requested"
   | "web-shared"
+  | "web-image-shared"
+  | "image-downloaded"
   | "copied-link"
   | "dismissed"
   | "unavailable";
@@ -20,10 +22,21 @@ export type ShareRequestPayload = {
   preferredTarget?: NativeShareTarget;
 };
 
-type NativeShareRequestMessage = {
-  type: "shareRequest";
-  payload: ShareRequestPayload;
+export type SnapshotShareRequestPayload = ShareRequestPayload & {
+  imageDataUrl: string;
+  fileName: string;
+  mimeType: "image/png";
 };
+
+type NativeShareRequestMessage =
+  | {
+      type: "shareRequest";
+      payload: ShareRequestPayload;
+    }
+  | {
+      type: "shareSnapshotRequest";
+      payload: SnapshotShareRequestPayload;
+    };
 
 export type NativeShareResult = {
   success: boolean;
@@ -95,6 +108,64 @@ function sendNativeShareRequest(payload: ShareRequestPayload): boolean {
 
   bridge.postMessage(JSON.stringify(message));
   return true;
+}
+
+export function requestNativeSnapshotShare(
+  payload: SnapshotShareRequestPayload,
+): boolean {
+  const bridge = window.ReactNativeWebView;
+
+  if (!bridge?.postMessage) {
+    return false;
+  }
+
+  const message: NativeShareRequestMessage = {
+    type: "shareSnapshotRequest",
+    payload,
+  };
+
+  bridge.postMessage(JSON.stringify(message));
+  return true;
+}
+
+function dataUrlToBlob(dataUrl: string): Promise<Blob> {
+  return fetch(dataUrl).then((response) => response.blob());
+}
+
+function triggerDownload(dataUrl: string, fileName: string) {
+  const anchor = document.createElement("a");
+  anchor.href = dataUrl;
+  anchor.download = fileName;
+  anchor.click();
+}
+
+export async function shareSnapshotOnWeb(
+  payload: SnapshotShareRequestPayload,
+): Promise<ShareChannel> {
+  try {
+    const blob = await dataUrlToBlob(payload.imageDataUrl);
+    const file = new File([blob], payload.fileName, { type: payload.mimeType });
+
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: payload.title,
+        text: payload.text,
+      });
+      return "web-image-shared";
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return "dismissed";
+    }
+  }
+
+  try {
+    triggerDownload(payload.imageDataUrl, payload.fileName);
+    return "image-downloaded";
+  } catch {
+    return "unavailable";
+  }
 }
 
 export async function requestShare(payload: ShareRequestPayload): Promise<ShareChannel> {

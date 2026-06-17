@@ -1,15 +1,41 @@
 {
-  "name": "microsite",
+  "name": "@your-org/story-player",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Embeddable story player component for CMS integration",
+  "author": "Your Team",
+  "license": "MIT",
+  "main": "./dist/story-player.umd.cjs",
+  "module": "./dist/story-player.js",
+  "exports": {
+    ".": {
+      "import": "./dist/story-player.js",
+      "require": "./dist/story-player.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/story-player.css",
+    "./cms": {
+      "script": "./dist/cms/story-player.min.js",
+      "types": "./dist/cms/cms-bundle.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:lib": "tsc -b && VITE_BUILD_MODE=lib vite build",
+    "build:cms": "tsc -b && VITE_BUILD_MODE=cms vite build",
+    "build:all": "bun run build && bun run build:lib && bun run build:cms",
+    "build:exports": "node scripts/generate-cms-exports.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "modern-screenshot": "^4.7.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router": "^7.18.0"

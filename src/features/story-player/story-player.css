@@ -205,6 +205,16 @@
   cursor: wait;
 }
 
+.story-player[data-capturing="true"] .story-player__share-button,
+.story-player[data-capturing="true"] .story-player__share-status,
+.story-player[data-capturing="true"] .story-player__progress,
+.story-player[data-capturing="true"] .story-player__topbar,
+.story-player[data-capturing="true"] .story-player__hint,
+.story-player[data-capturing="true"] .story-player__tap-zone {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .story-slide {
   width: min(100%, 720px);
   animation: slide-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;

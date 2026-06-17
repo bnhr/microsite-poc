@@ -30,6 +30,7 @@ export const stories: Story[] = [
     description:
       "Kamu masuk Top 10 toko paling aktif. Keren!",
     duration: 6200,
+    shareable: true,
     background:
       "linear-gradient(180deg, rgb(8 31 104 / 0.98) 0 48%, rgb(8 31 104 / 0.82) 66%, rgb(8 31 104 / 0.3) 100%), url('https://placehold.co/600x400/png?text=Aktivitas+Toko') center bottom / cover no-repeat, #081f68",
     accent: "#f4a11a",
@@ -40,6 +41,7 @@ export const stories: Story[] = [
     title: "Top area pesananmu",
     items: ["Bandung Barat", "Cicendo", "Cibeunying", "Lengkong", "Antapani"],
     duration: 6500,
+    shareable: true,
     background:
       "radial-gradient(circle at 85% 10%, rgb(244 161 26 / 0.36) 0, transparent 28%), linear-gradient(145deg, #132f87, #091a4f)",
     accent: "#f4a11a",

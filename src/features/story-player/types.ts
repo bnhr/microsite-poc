@@ -3,6 +3,7 @@ export type BaseStory = {
   duration: number;
   background: string;
   accent?: string;
+  shareable?: boolean;
 };
 
 export type CoverStory = BaseStory & {

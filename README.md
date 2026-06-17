@@ -1,75 +1,114 @@
-# React + TypeScript + Vite
+# Story Player Microsite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single project that supports three production outputs:
 
-Currently, two official plugins are available:
+1. Standalone microsite (SPA)
+2. Reusable library package (ESM + UMD)
+3. Standalone CMS embed bundle (IIFE)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This setup allows one shared codebase while supporting different teams and integration paths.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- React 19
+- TypeScript
+- Vite 8
+- Bun for package scripts
 
-Note: This will impact Vite dev & build performances.
+## Quick Start
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun install
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build Modes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1. SPA Build (Microsite)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run build
 ```
+
+Output:
+
+- `dist/index.html`
+- `dist/assets/*`
+
+Use this for static hosting (Vercel/Netlify/CDN).
+
+### 2. Library Build (Reusable Package)
+
+```bash
+bun run build:lib
+```
+
+Output:
+
+- `dist/index.js` (ESM)
+- `dist/index.umd.cjs` (UMD/CJS)
+- `dist/story-player.css.css`
+
+Use this when another app imports the story player as a dependency.
+
+### 3. CMS Bundle Build (Embed Script)
+
+```bash
+bun run build:cms
+```
+
+Output:
+
+- `dist/cms/story-player.min.js`
+- `dist/cms/story-player.css`
+
+Use this for CMS integration with script/link tags.
+
+### Build Everything
+
+```bash
+bun run build:all
+```
+
+## Scripts
+
+- `bun run dev` - start local dev server
+- `bun run build` - build SPA
+- `bun run build:lib` - build library output
+- `bun run build:cms` - build standalone CMS bundle
+- `bun run build:all` - build all targets
+- `bun run build:exports` - generate extra CMS export docs/assets
+- `bun run lint` - run ESLint
+- `bun run preview` - preview SPA production build
+
+## Project Structure
+
+```text
+src/
+  app.tsx
+  main.tsx
+  data/
+  features/
+    story-player/
+      story-player.tsx
+      story-slide.tsx
+      use-story-player.ts
+      types.ts
+      slides/
+  lib/
+    index.ts          # Library entry (ESM/UMD)
+    cms-bundle.tsx    # CMS standalone entry
+```
+
+## Integration Guides
+
+- CMS embedding guide: `docs/cms-embed-guide.md`
+- Developer build and release guide: `docs/build-and-release-guide.md`
+- Architecture notes: `docs/ARCHITECTURE.md`
+- Extended technical details: `docs/MULTI_BUILD_GUIDE.md`
+
+## Notes
+
+- This repository standard uses Bun for dependency management and scripts.
+- Source of truth for story-player logic remains in `src/features/story-player/*`.
+- Build mode switching is controlled by `VITE_BUILD_MODE` in `vite.config.ts`.
