@@ -154,7 +154,6 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
       const preferredTarget = getShareTargetFromUrl() ?? DEFAULT_SHARE_TARGET;
       const snapshotRatio = SNAPSHOT_RATIO_BY_TARGET[preferredTarget];
       const snapshotImage = await domToPng(playerRef.current, { scale: 3 });
-      // const normalizedImageDataUrl = await normalizeSnapshotToAspectRatio(snapshotImage, snapshotRatio);
       const img = new Image();
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
@@ -192,13 +191,11 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
       const preferredTarget = getShareTargetFromUrl() ?? DEFAULT_SHARE_TARGET;
       const snapshotRatio = SNAPSHOT_RATIO_BY_TARGET[preferredTarget];
 
-      const snapshotImage = await domToImage(playerRef.current, {
-        scale: 3,
-      });
-      const normalizedImageDataUrl = await normalizeSnapshotToAspectRatio(
-        snapshotImage,
-        snapshotRatio,
-      );
+      const snapshotImage = await domToPng(playerRef.current, { scale: 3 });
+      // const normalizedImageDataUrl = await normalizeSnapshotToAspectRatio(
+      //   snapshotImage,
+      //   snapshotRatio,
+      // );
 
       const payload = {
         slideId: activeStory.id,
@@ -207,7 +204,7 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
         text: "Lihat kilas balik performa tokomu.",
         url: window.location.href,
         preferredTarget,
-        imageDataUrl: normalizedImageDataUrl,
+        imageDataUrl: snapshotImage,
         fileName: `${activeStory.id}.png`,
         mimeType: "image/png" as const,
       };
