@@ -163,6 +163,9 @@
   padding: 0;
   background: transparent;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  outline: none;
 }
 
 .story-player__tap-zone:disabled {

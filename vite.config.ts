@@ -8,6 +8,9 @@ const isCmsBuild = process.env.VITE_BUILD_MODE === 'cms'
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: isCmsBuild ? {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  } : undefined,
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] })
@@ -44,11 +47,11 @@ export default defineConfig({
       name: 'StoryPlayer',
       formats: ['iife'],
       fileName: () => 'story-player.min.js',
+      cssFileName: 'story-player.min',
     },
     minify: 'oxc',
     rolldownOptions: {
       output: {
-        // Bundle everything including React for standalone use
         inlineDynamicImports: true,
       },
     },

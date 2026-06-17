@@ -80,6 +80,7 @@ export function useStoryPlayer({
 
     if (isPaused) {
       pausedProgressRef.current = progress;
+      startTimeRef.current = null;
       cancelTimer();
       return;
     }
