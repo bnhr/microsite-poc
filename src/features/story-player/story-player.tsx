@@ -16,7 +16,7 @@ const SNAPSHOT_WIDTH = 1600;
 
 const SNAPSHOT_RATIO_BY_TARGET: Record<NativeShareTarget, number> = {
   system: 16 / 9,
-  instagram_story: 9 / 16,
+  instagram_story: 16 / 9,
   whatsapp: 16 / 9,
   others: 16 / 9,
 };
