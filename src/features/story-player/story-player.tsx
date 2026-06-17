@@ -1,4 +1,4 @@
-import { domToPng } from "modern-screenshot";
+import { domToImage, domToPng } from "modern-screenshot";
 import { useEffect, useRef, useState } from "react";
 import type { Story } from "./types";
 import { StorySlide } from "./story-slide";
@@ -21,6 +21,10 @@ const SNAPSHOT_RATIO_BY_TARGET: Record<NativeShareTarget, number> = {
   others: 16 / 9,
 };
 
+function isDebugSnapshotEnabled(): boolean {
+  return new URLSearchParams(window.location.search).get("debug") === "snapshot";
+}
+
 function getShareTargetFromUrl(): NativeShareTarget | null {
   const raw = new URLSearchParams(window.location.search).get("shareTarget");
 
@@ -36,20 +40,10 @@ function getShareTargetFromUrl(): NativeShareTarget | null {
   return null;
 }
 
-function loadImage(dataUrl: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("Failed to load snapshot image"));
-    image.src = dataUrl;
-  });
-}
-
 async function normalizeSnapshotToAspectRatio(
-  dataUrl: string,
+  source: HTMLImageElement,
   aspectRatio: number,
 ): Promise<string> {
-  const source = await loadImage(dataUrl);
   const targetWidth = SNAPSHOT_WIDTH;
   const targetHeight = Math.round(targetWidth / aspectRatio);
   const targetRatio = aspectRatio;
@@ -113,6 +107,9 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
   } = useStoryPlayer({ stories, loop });
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
+  const [debugMeta, setDebugMeta] = useState<{ ratio: string; width: number; height: number } | null>(null);
+  console.log("🚀 ~ StoryPlayer ~ debugMeta:", debugMeta)
   const playerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -148,6 +145,36 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
     );
   }
 
+  const debugSnapshot = async () => {
+    if (!playerRef.current) return;
+    setIsPaused(true);
+    setIsCapturing(true);
+    try {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const preferredTarget = getShareTargetFromUrl() ?? DEFAULT_SHARE_TARGET;
+      const snapshotRatio = SNAPSHOT_RATIO_BY_TARGET[preferredTarget];
+      const snapshotImage = await domToPng(playerRef.current, { scale: 3 });
+      // const normalizedImageDataUrl = await normalizeSnapshotToAspectRatio(snapshotImage, snapshotRatio);
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load debug image"));
+        img.src = snapshotImage;
+      });
+      setDebugMeta({
+        ratio: `${preferredTarget} (${snapshotRatio.toFixed(4)})`,
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+      setDebugImageUrl(snapshotImage);
+    } catch (e) {
+      console.error("Debug snapshot failed", e);
+    } finally {
+      setIsCapturing(false);
+      setIsPaused(false);
+    }
+  };
+
   const shareStory = async () => {
     if (!activeStory.shareable || !playerRef.current) {
       return;
@@ -165,11 +192,11 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
       const preferredTarget = getShareTargetFromUrl() ?? DEFAULT_SHARE_TARGET;
       const snapshotRatio = SNAPSHOT_RATIO_BY_TARGET[preferredTarget];
 
-      const imageDataUrl = await domToPng(playerRef.current, {
+      const snapshotImage = await domToImage(playerRef.current, {
         scale: 3,
       });
       const normalizedImageDataUrl = await normalizeSnapshotToAspectRatio(
-        imageDataUrl,
+        snapshotImage,
         snapshotRatio,
       );
 
@@ -240,6 +267,48 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
         >
           Share
         </button>
+      )}
+
+      {isDebugSnapshotEnabled() && (
+        <button
+          className="story-player__debug-button"
+          type="button"
+          onClick={debugSnapshot}
+          aria-label="Debug snapshot"
+        >
+          Debug Snapshot
+        </button>
+      )}
+
+      {debugImageUrl && debugMeta && (
+        <div className="story-player__debug-overlay" onClick={() => setDebugImageUrl(null)}>
+          <div className="story-player__debug-panel" onClick={(e) => e.stopPropagation()}>
+            <p className="story-player__debug-meta">
+              {debugMeta.ratio} — {debugMeta.width}&times;{debugMeta.height} ({(debugMeta.width / debugMeta.height).toFixed(4)})
+            </p>
+            <img
+              className="story-player__debug-image"
+              src={debugImageUrl}
+              alt="Snapshot preview"
+            />
+            <div className="story-player__debug-actions">
+              <a
+                className="story-player__debug-download"
+                href={debugImageUrl}
+                download="debug-snapshot.png"
+              >
+                Download
+              </a>
+              <button
+                className="story-player__debug-close"
+                type="button"
+                onClick={() => setDebugImageUrl(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {activeStory.shareable && shareStatus && (
