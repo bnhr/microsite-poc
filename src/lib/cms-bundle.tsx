@@ -1,17 +1,17 @@
 /**
- * Story Player CMS Bundle
+ * CMS Template Preview Bundle
  *
- * Standalone bundle for embedding in CMS systems.
- * Bundles React and all dependencies into a single IIFE script.
+ * Standalone IIFE bundle for embedding template previews in CMS systems.
+ * Only bundles static template components — no player logic, share, or navigation.
  *
  * Usage in CMS:
  * ```html
- * <div id="story-player"></div>
+ * <div id="cms-preview"></div>
  * <script src="story-player.min.js"></script>
  * <script>
- *   StoryPlayer.mount('story-player', {
- *     stories: [...],
- *     apiEndpoint: '/api/stories'
+ *   TemplatePreview.mount('cms-preview', {
+ *     template: 'a',
+ *     props: { title: 'Hello', subtitle: 'World' }
  *   })
  * </script>
  * ```
@@ -19,81 +19,67 @@
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { StoryPlayer } from '../features/story-player/story-player'
-import { stories as defaultStories } from '../data/stories'
-import type { Story } from '../features/story-player/types'
-import '../index.css'
-import '../features/story-player/story-player.css'
+import TemplateA from '../templates/template-a'
+import TemplateB from '../templates/template-b'
+import TemplateC from '../templates/template-c'
+import type { TemplateConfig } from '../templates/types'
 
-interface MountConfig {
-  stories?: Story[]
-  loop?: boolean
-  apiEndpoint?: string
-}
-
-type StoryPlayerGlobalApi = {
+type TemplatePreviewGlobalApi = {
   mount: typeof mount
   unmount: typeof unmount
 }
 
-type ReactUnmountContainer = {
-  _reactRootContainer?: {
-    unmount: () => void
-  }
+type ReactRoot = {
+  unmount: () => void
 }
 
-/**
- * Mount the StoryPlayer component to a DOM element
- * @param elementId - ID of the element to mount to
- * @param config - Configuration options
- */
-function mount(elementId: string, config: MountConfig = {}): void {
+const roots = new Map<string, ReactRoot>()
+
+function mount(elementId: string, config: TemplateConfig): void {
   const element = document.getElementById(elementId)
   if (!element) {
-    console.error(`Element with ID "${elementId}" not found`)
+    console.error(`TemplatePreview: element "#${elementId}" not found`)
     return
   }
 
-  const { stories: customStories = defaultStories, loop = false } = config
+  unmount(elementId)
 
   const root = createRoot(element)
-  root.render(
-    <StrictMode>
-      <StoryPlayer stories={customStories} loop={loop} />
-    </StrictMode>
-  )
+  const template = renderTemplate(config)
+  root.render(<StrictMode>{template}</StrictMode>)
+  roots.set(elementId, root)
 }
 
-/**
- * Unmount the StoryPlayer component
- * @param elementId - ID of the mounted element
- */
 function unmount(elementId: string): void {
-  const element = document.getElementById(elementId)
-  if (!element) {
-    console.error(`Element with ID "${elementId}" not found`)
-    return
-  }
-
-  const root = (element as ReactUnmountContainer)._reactRootContainer
+  const root = roots.get(elementId)
   if (root) {
     root.unmount()
+    roots.delete(elementId)
   }
 }
 
-// Export as global for IIFE builds
+function renderTemplate(config: TemplateConfig) {
+  switch (config.template) {
+    case 'a':
+      return <TemplateA {...config.props} />
+    case 'b':
+      return <TemplateB {...config.props} />
+    case 'c':
+      return <TemplateC {...config.props} />
+  }
+}
+
 declare global {
   interface Window {
-    StoryPlayer: {
+    TemplatePreview: {
       mount: typeof mount
       unmount: typeof unmount
     }
   }
 }
 
-// Expose to global scope for standalone script
 if (typeof window !== 'undefined') {
-  ;(window as Window & { StoryPlayer: StoryPlayerGlobalApi }).StoryPlayer = {
+  ;(window as Window & { TemplatePreview: TemplatePreviewGlobalApi }).TemplatePreview = {
     mount,
     unmount,
   }

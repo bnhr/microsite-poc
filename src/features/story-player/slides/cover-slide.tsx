@@ -1,16 +1,18 @@
-import type { CoverStory } from "../types";
+import type { CoverStory } from "../types"
+import TemplateA from "../../../templates/template-a"
 
 type CoverSlideProps = {
-  story: CoverStory;
-};
+  story: CoverStory
+}
 
 export function CoverSlide({ story }: CoverSlideProps) {
   return (
-    <div className="story-slide story-slide--cover">
-      <p className="story-slide__eyebrow">{story.eyebrow}</p>
-      <h1>{story.title}</h1>
-
-      {story.subtitle && <p className="story-slide__subtitle">{story.subtitle}</p>}
-    </div>
-  );
+    <TemplateA
+      title={story.title}
+      subtitle={story.eyebrow}
+      description={story.subtitle}
+      background={story.background}
+      accent={story.accent}
+    />
+  )
 }

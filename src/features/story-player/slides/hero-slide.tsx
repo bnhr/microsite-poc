@@ -1,17 +1,17 @@
-import type { HeroStory } from "../types";
+import type { HeroStory } from "../types"
+import TemplateA from "../../../templates/template-a"
 
 type HeroSlideProps = {
-  story: HeroStory;
-};
+  story: HeroStory
+}
 
 export function HeroSlide({ story }: HeroSlideProps) {
   return (
-    <div className="story-slide story-slide--hero">
-      <h1>{story.title}</h1>
-
-      {story.description && (
-        <p className="story-slide__description">{story.description}</p>
-      )}
-    </div>
-  );
+    <TemplateA
+      title={story.title}
+      description={story.description}
+      background={story.background}
+      accent={story.accent}
+    />
+  )
 }

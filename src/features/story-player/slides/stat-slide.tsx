@@ -1,16 +1,18 @@
-import type { StatStory } from "../types";
+import type { StatStory } from "../types"
+import TemplateA from "../../../templates/template-a"
 
 type StatSlideProps = {
-  story: StatStory;
-};
+  story: StatStory
+}
 
 export function StatSlide({ story }: StatSlideProps) {
   return (
-    <div className="story-slide story-slide--stat">
-      <p className="story-slide__label">{story.label}</p>
-      <strong>{story.value}</strong>
-
-      {story.note && <p className="story-slide__note">{story.note}</p>}
-    </div>
-  );
+    <TemplateA
+      title={story.value}
+      subtitle={story.label}
+      stat={{ value: story.value, note: story.note }}
+      background={story.background}
+      accent={story.accent}
+    />
+  )
 }
