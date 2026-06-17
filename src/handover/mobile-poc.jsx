@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { domToPng } from 'modern-screenshot'
+import { domToImage } from 'modern-screenshot'
 
 function ShareIcon() {
   return (
@@ -78,7 +78,8 @@ function Wrapped() {
     await new Promise(resolve => requestAnimationFrame(resolve))
     setCapturing(true)
     try {
-      return await domToPng(frameRef.current, { scale: 3 })
+      const img = await domToImage(frameRef.current, { scale: 3 })
+      return img.src
     } finally {
       setCapturing(false)
       setShowButton(true)

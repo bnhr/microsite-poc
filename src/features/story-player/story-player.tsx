@@ -47,19 +47,19 @@ async function normalizeSnapshotToAspectRatio(
   const targetWidth = SNAPSHOT_WIDTH;
   const targetHeight = Math.round(targetWidth / aspectRatio);
   const targetRatio = aspectRatio;
-  const sourceRatio = source.width / source.height;
+  const sourceRatio = source.naturalWidth / source.naturalHeight;
 
-  let cropWidth = source.width;
-  let cropHeight = source.height;
+  let cropWidth = source.naturalWidth;
+  let cropHeight = source.naturalHeight;
   let cropX = 0;
   let cropY = 0;
 
   if (sourceRatio > targetRatio) {
-    cropWidth = Math.round(source.height * targetRatio);
-    cropX = Math.floor((source.width - cropWidth) / 2);
+    cropWidth = Math.round(source.naturalHeight * targetRatio);
+    cropX = Math.floor((source.naturalWidth - cropWidth) / 2);
   } else if (sourceRatio < targetRatio) {
-    cropHeight = Math.round(source.width / targetRatio);
-    cropY = Math.floor((source.height - cropHeight) / 2);
+    cropHeight = Math.round(source.naturalWidth / targetRatio);
+    cropY = Math.floor((source.naturalHeight - cropHeight) / 2);
   }
 
   const canvas = document.createElement("canvas");
