@@ -1,6 +1,4 @@
 .story-player {
-  --story-background: #121212;
-  --story-accent: #ffffff;
   --story-top-safe: max(8px, env(safe-area-inset-top));
 
   position: relative;
@@ -17,24 +15,7 @@
   padding: 24px;
 }
 
-.story-player__background {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: var(--story-background);
-}
 
-.story-player__background::after {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  z-index: -1;
-  background:
-    radial-gradient(circle at 20% 20%, rgb(255 255 255 / 0.18), transparent 24%),
-    radial-gradient(circle at 80% 80%, rgb(255 255 255 / 0.1), transparent 28%);
-  filter: blur(20px);
-  animation: background-drift 9000ms ease-in-out infinite alternate;
-}
 
 .story-player__share-button {
   position: absolute;
@@ -181,12 +162,9 @@
 }
 
 .story-player__content {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 5;
-  display: grid;
-  min-height: 100dvh;
-  place-items: center;
-  padding: 96px 24px 72px;
   user-select: none;
   touch-action: manipulation;
 }

@@ -45,17 +45,9 @@ export function StoryPlayer({ stories, loop = false }: StoryPlayerProps) {
     <main
       ref={playerRef}
       className="story-player"
-      style={
-        {
-          "--story-background": activeStory.background,
-          "--story-accent": activeStory.accent ?? "#ffffff",
-        } as React.CSSProperties
-      }
       data-paused={isPaused ? "true" : "false"}
       data-capturing={isCapturing ? "true" : "false"}
     >
-      <div className="story-player__background" />
-
       {activeStory.shareable && (
         <button
           className="story-player__share-button"
